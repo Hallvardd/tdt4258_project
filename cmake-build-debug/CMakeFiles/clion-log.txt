@@ -1,1 +1,1 @@
-CMakeLists.txt not found in /home/hallvard/TDT4258/excercise3
+CMakeLists.txt not found in /home/hallvard/TDT4258/tdt4258_project

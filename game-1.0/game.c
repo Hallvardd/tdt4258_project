@@ -108,7 +108,6 @@ void draw_pointer(struct Pointer* p) {
 	int min_y = (p->y < p->old_y) ? p->y : p->old_y;
 	int max_y = ((p->y > p->old_y) ? p->y : p->old_y) + POINTER_HEIGHT;
 	max_y = (max_y >= DISPLAY_HEIGHT) ? DISPLAY_HEIGHT-1 : max_y;
-	//printf("min_y: %d, max_y:%d\n", min_y, max_y);
 	update_area(p->x, min_y, POINTER_WIDTH, max_y - min_y + 1);
 }
 
@@ -270,15 +269,15 @@ void menu_loop(){
 
 void main_menu(){
 	struct Pointer pointer;
-	pointer.y = 
-	pointer.x = board_margin
-   	draw_pointer(pointer)
+	pointer -> y = START_POS_Y;
+	pointer -> x = board_margin;
+   	draw_pointer(pointer);
 
-	int start = 
-	int credits = 2
-	int quit = 3 
-        int buttonPressed = 0;
-        int exit = 0;
+	int start = 1;
+	int credits = 2;
+	int quit = 3 ;
+	int buttonPressed = 0;
+	int exit = 0;
 
 	while(1) {
         	buttonPressed = getInput();
