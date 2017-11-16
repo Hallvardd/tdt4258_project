@@ -268,6 +268,65 @@ void menu_loop(){
 	}
 }
 
+void main_menu(){
+	struct Pointer pointer;
+	pointer.y = 
+	pointer.x = board_margin
+   	draw_pointer(pointer)
+
+	int start = 
+	int credits = 2
+	int quit = 3 
+        int buttonPressed = 0;
+        int exit = 0;
+
+	while(1) {
+        	buttonPressed = getInput();
+        	state = getInput();
+
+		// if the cursor is moved down while in the last position, it is moved to the top position.
+		if (state > exit){
+			state = start;
+		}
+		// if the cursor is moved up at the top it loops down to the bottom.
+		if(state < 0){
+			state = exit;
+		}
+
+		// the should move the pointer to the corresponding location.
+		// a buttonpress up should move the cursor a step up, a
+		switch (state) {
+		    case start:
+			updateScreen(GAME);
+		        if(buttonPressed){
+		            game_loop();
+		        }
+			//TODO update screen back to main menu. 
+		        break;
+
+		    case credits:
+		        updateScreen(CREDITS);
+		        if(buttonPressed){
+		            credits();
+		        }
+		        break;
+		    case quit:
+		        updateScreen(EXIT);
+		        if(buttonPressed){
+		            exit = 1;
+		        }
+		        break;
+		    default:
+		        break;
+		}
+
+		if(exit){
+		    break;
+        	}
+    	}
+}
+
+
 void game_loop() {
 	struct Board p1, p2;
 	p1.x = board_margin;
