@@ -29,15 +29,15 @@ int BALL_HEIGHT = 15;
 //pointer dimensions
 int POINTER_WIDTH = 20;
 int POINTER_HEIGHT = 20;
-int POINTER_MARGIN = 20;
+int POINTER_MARGIN = 50;
 
 //menu dimensions:
 int MENU_ITEM_WIDTH = 80;
 int MENU_ITEM_HEIGHT = 20;
-int MENU_ITEM_MARGIN = 60;
-int START_POS_Y = 40;
-int TEAM_POS_Y = START_POS_Y + 60;
-int EXIT_POS_Y = TEAM_POS_Y + 60;
+int MENU_ITEM_MARGIN = 120;
+int START_POS_Y = 50;
+int TEAM_POS_Y = 110;
+int EXIT_POS_Y = 170;
 
 uint16_t* framebuffer;
 int file_descriptor;
@@ -62,22 +62,6 @@ struct Pointer {
 	int x,y,old_y;
 };
 
-/*
-struct MenuItemStart {
-	int x = MENU_ITEM_MARGIN;
-	int y = START_POS_Y;
-};
-
-struct MenuItemStart {
-	int x = MENU_ITEM_MARGIN;
-	int y = START_POS_Y;
-};
-*/
-
-
-
-
-
 
 bool update_area(int startX, int startY, int width, int height) {
 	/*if (startX < 0 || startY < 0 || startX > DISPLAY_WIDTH || startY > DISPLAY_HEIGHT || (startX+width) > DISPLAY_WIDTH || (startY+height) > DISPLAY_HEIGHT) {
@@ -94,16 +78,14 @@ bool update_area(int startX, int startY, int width, int height) {
 }
 
 void draw_pointer(struct Pointer* p) {
-	int y = p->y;
 	if (p->y == p->old_y) {
 		return;
 	}
 	for (int i = p->old_y; i < p->old_y + POINTER_HEIGHT + 1; i++) {
 		memset(&framebuffer[(i*DISPLAY_WIDTH) + p->x], background_color, POINTER_WIDTH*sizeof(uint16_t));
 	}
-	for (int i = p->y; i < y_pos + _HEIGHT; i++) {
-		memcpy(&framebuffer[(i*DISPLAY_WIDTH) + p->x], &ball_pixels[(i - y_pos) * BALL_WIDTH], BALL_WIDTH*sizeof(uint16_t));
-		memcpy(&framebuffer[(i*DISPLAY_WIDTH) + p->x], &pointer_pixels[index * POINTER_WIDTH], POINTER_WIDTH*sizeof(uint16_t));
+	for (int i = p->y; i < p->y + POINTER_HEIGHT; i++) {
+		memcpy(&framebuffer[(i*DISPLAY_WIDTH) + p->x], &pointer_pixels[(i - p->y) * POINTER_WIDTH], POINTER_WIDTH*sizeof(uint16_t));
 	}
 	int min_y = (p->y < p->old_y) ? p->y : p->old_y;
 	int max_y = ((p->y > p->old_y) ? p->y : p->old_y) + POINTER_HEIGHT;
@@ -112,18 +94,22 @@ void draw_pointer(struct Pointer* p) {
 }
 
 void draw_menu(){
-	// Method drawing all menu elements, should be changed to take menu items as a parameter, but not for now draws all elements hard-coded.
-
-	for (int i = START_POS_Y; i < START_POS_Y + MENU_ITEM_HEIGHT + 1; i++) {
-		memset(&framebuffer[(i*DISPLAY_WIDTH) + MENU_ITEM_MARGIN], background_color, POINTER_WIDTH*sizeof(uint16_t));
-	}
+	// draws start 
 	for (int i = START_POS_Y; i < START_POS_Y + MENU_ITEM_HEIGHT; i++) {
 		memcpy(&framebuffer[(i*DISPLAY_WIDTH) + MENU_ITEM_MARGIN], &start_pixels[(i - START_POS_Y) * MENU_ITEM_WIDTH], MENU_ITEM_WIDTH*sizeof(uint16_t));
-		memcpy(&framebuffer[(i*DISPLAY_WIDTH) + MENU_ITEM_WIDTH], &start_pixels_pixels[index * MENU_ITEM_WIDTH], MENU_ITEM_WIDTH*sizeof(uint16_t));
+	}
+	// draws team info (not yet implemented)
+	for (int i = TEAM_POS_Y; i < TEAM_POS_Y + MENU_ITEM_HEIGHT; i++) {
+		memcpy(&framebuffer[(i*DISPLAY_WIDTH) + MENU_ITEM_MARGIN], &team_pixels[(i - TEAM_POS_Y) * MENU_ITEM_WIDTH], MENU_ITEM_WIDTH*sizeof(uint16_t));
+	}
+	// draws exit
+	for (int i = EXIT_POS_Y; i < EXIT_POS_Y + MENU_ITEM_HEIGHT; i++) {
+		memcpy(&framebuffer[(i*DISPLAY_WIDTH) + MENU_ITEM_MARGIN], &exit_pixels[(i - EXIT_POS_Y) * MENU_ITEM_WIDTH], MENU_ITEM_WIDTH*sizeof(uint16_t));
 	}
 	int min_y = START_POS_Y;
-	int max_y = START_POS_Y + MENU_ITEM_HEIGHT;
+	int max_y = EXIT_POS_Y + MENU_ITEM_HEIGHT;
 	update_area(MENU_ITEM_MARGIN, min_y, MENU_ITEM_WIDTH, max_y - min_y + 1);
+		
 }
 
 
@@ -256,33 +242,53 @@ void update_ball(struct Ball* ball, struct Board* left, struct Board* right, flo
 	ball->y = new_y;
 }
 
+/*
 void menu_loop(){
 	int menu_drawn = 0;
+	struct Pointer *pointer = malloc(sizeof(struct Pointer));
+	pointer -> x = POINTER_MARGIN; 
+	pointer -> y = START_POS_Y;
+	pointer -> old_y = 0; 
+	
+	memset(framebuffer, 0x00, DISPLAY_WIDTH*DISPLAY_HEIGHT*sizeof(uint16_t));
+	update_area(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT);
 	while(1){
 
 		if(!menu_drawn){
 			draw_menu();
+			draw_pointer(pointer);
 			menu_drawn = 1;
 		}
 	}
 }
+*/
+void clear_screen(){
+	// sets all the pixels to 0x00. 
+	memset(framebuffer, 0x00, DISPLAY_WIDTH*DISPLAY_HEIGHT*sizeof(uint16_t));
+	update_area(0,0,DISPLAY_WIDTH,DISPLAY_HEIGHT);
+}
+
 
 void main_menu(){
-	struct Pointer pointer;
-	pointer -> y = START_POS_Y;
-	pointer -> x = board_margin;
-   	draw_pointer(pointer);
 
-	int start = 1;
-	int credits = 2;
-	int quit = 3 ;
+	struct Pointer *pointer = malloc(sizeof(struct Pointer));
+	pointer -> x = POINTER_MARGIN; 
+	pointer -> y = START_POS_Y;
+	pointer -> old_y = 0; 
+	clear_screen(); 
+	draw_menu();
+	draw_pointer(pointer);
+
+	 int start = 1;
+	int team = 2;
+	int exit = 3 ;
 	int buttonPressed = 0;
-	int exit = 0;
+	int quit = 0;
+	int state = 1; 
+	int button_pressed = 0; 
 
 	while(1) {
-        	buttonPressed = getInput();
-        	state = getInput();
-
+       
 		// if the cursor is moved down while in the last position, it is moved to the top position.
 		if (state > exit){
 			state = start;
@@ -296,23 +302,33 @@ void main_menu(){
 		// a buttonpress up should move the cursor a step up, a
 		switch (state) {
 		    case start:
-			updateScreen(GAME);
-		        if(buttonPressed){
+				pointer -> old_y = pointer -> y;
+				pointer -> y = START_POS_Y;
+				draw_pointer(pointer);
+		        if(button_pressed){
 		            game_loop();
-		        }
-			//TODO update screen back to main menu. 
+		            clear_screen();
+		            draw_menu();
+		            draw_pointer(pointer);
+		            button_pressed = 0;
+		        } 
 		        break;
 
-		    case credits:
-		        updateScreen(CREDITS);
+		    case team:
+		        pointer -> old_y = pointer -> y;
+				pointer -> y = TEAM_POS_Y;
+				draw_pointer(pointer);
 		        if(buttonPressed){
-		            credits();
+		            //team(); not yet implemented. 
+		            clear_screen();
+		            draw_menu();
+		            draw_pointer(pointer);
+		            button_pressed = 0;
 		        }
 		        break;
-		    case quit:
-		        updateScreen(EXIT);
+		    case exit:
 		        if(buttonPressed){
-		            exit = 1;
+		            quit = 1;
 		        }
 		        break;
 		    default:
@@ -324,7 +340,6 @@ void main_menu(){
         	}
     	}
 }
-
 
 void game_loop() {
 	struct Board p1, p2;
@@ -410,7 +425,7 @@ int main(int argc, char *argv[])
 		printf("Update NOT successfull!\n");
 	}*/
 
-	menu_loop();
+	main_menu();
 	//game_loop();
 
 	munmap(framebuffer, DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(uint16_t));
